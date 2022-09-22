@@ -14,6 +14,7 @@ library(MCMCglmm)
 library(psych)
 library(MasterBayes)
 library(bestNormalize)
+library(gdata)
 #### Functions to load in ####
 gmat.list <- function(x){list(matrix(x,nrow=5,ncol=5,byrow=F))} #Puentes
 R.proj <- function(Gs,p,vec){
@@ -222,33 +223,33 @@ eff.dim<-function(G){
 
 #### Observed G matrices ####
 #Change file path to correct one
-#mcmc.penn.full <- readRDS("C:/Users/yourpath/mcmc.penn.full.RDS")
-#mcmc.mary.full <- readRDS("C:/Users/yourpath/mcmc.mary.full.RDS")
-#mcmc.hoff.full <- readRDS("C:/Users/yourpath/mcmc.hoff.full.RDS")
-#mcmc.ellr.full <- readRDS("C:/Users/yourpath/mcmc.ellr.full.RDS")
+mcmcDiagFull <- readRDS("mcmc.diag.full.RDS")
 
 ### Posterior samples of G
-Gmcmc.penn <- lapply(apply(mcmc.penn.full$VCV[,1:25]/100, 1, gmat.list), "[[", 1) 
-Gmcmc.mary <- lapply(apply(mcmc.mary.full$VCV[,1:25]/100, 1, gmat.list), "[[", 1) 
-Gmcmc.hoff <- lapply(apply(mcmc.hoff.full$VCV[,1:25]/100, 1, gmat.list), "[[", 1) 
-Gmcmc.ellr <- lapply(apply(mcmc.ellr.full$VCV[,1:25]/100, 1, gmat.list), "[[", 1) 
+Gmcmc.penn<- lapply(apply(mcmcDiagFull$VCV[,1:25]/100, 1, gmat.list), "[[", 1) 
+Gmcmc.mary<- lapply(apply(mcmcDiagFull$VCV[,26:50]/100, 1, gmat.list), "[[", 1) 
+Gmcmc.hoff<- lapply(apply(mcmcDiagFull$VCV[,51:75]/100, 1, gmat.list), "[[", 1) 
+Gmcmc.ellr<- lapply(apply(mcmcDiagFull$VCV[,76:100]/100, 1, gmat.list), "[[", 1) 
 
 ### Mean and median of posterior samples
-Gmcmc.mean.penn <- matrix(colMeans(mcmc.penn.full$VCV[,1:25]),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.mean.mary <- matrix(colMeans(mcmc.mary.full$VCV[,1:25]),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.mean.hoff <- matrix(colMeans(mcmc.hoff.full$VCV[,1:25]),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.mean.ellr <- matrix(colMeans(mcmc.ellr.full$VCV[,1:25]),nrow=5,ncol=5,byrow=F)/100
+Gmcmc.mean.penn<- matrix(colMeans(mcmcDiagFull$VCV[,1:25]),nrow=5,ncol=5,byrow=F)/100
+Gmcmc.mean.mary<- matrix(colMeans(mcmcDiagFull$VCV[,26:50]),nrow=5,ncol=5,byrow=F)/100
+Gmcmc.mean.hoff<- matrix(colMeans(mcmcDiagFull$VCV[,51:75]),nrow=5,ncol=5,byrow=F)/100
+Gmcmc.mean.ellr<- matrix(colMeans(mcmcDiagFull$VCV[,76:100]),nrow=5,ncol=5,byrow=F)/100
 
-Gmcmc.median.penn <- matrix(apply(mcmc.penn.full$VCV[,1:25],2,median),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.median.mary <- matrix(apply(mcmc.mary.full$VCV[,1:25],2,median),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.median.hoff <- matrix(apply(mcmc.hoff.full$VCV[,1:25],2,median),nrow=5,ncol=5,byrow=F)/100
-Gmcmc.median.ellr <- matrix(apply(mcmc.ellr.full$VCV[,1:25],2,median),nrow=5,ncol=5,byrow=F)/100
+mean.Gs<-list(Gmcmc.mean.penn, Gmcmc.mean.mary, Gmcmc.mean.hoff, Gmcmc.mean.ellr)
+write.csv(mean.Gs, file = "MeanGtable.csv")  
+
+#Gmcmc.median.penn <- matrix(apply(mcmcDiagFull$VCV[,1:25]),2,median),nrow=5,ncol=5,byrow=F)/100
+#Gmcmc.median.mary <- matrix(apply(mcmcDiagFull$VCV[,26:50]),2,median),nrow=5,ncol=5,byrow=F)/100
+#Gmcmc.median.hoff <- matrix(apply(mcmcDiagFull$VCV[,51:75]),2,median),nrow=5,ncol=5,byrow=F)/100
+#Gmcmc.median.ellr <- matrix(apply(mcmcDiagFull$VCV[,76:100]),2,median),nrow=5,ncol=5,byrow=F)/100
 
 
 #### Random G matrices ####
 #loading in rand.Garray produced in randomnull.R#
 #Change file path to correct one
-#rand.Garray<-readRDS("C:/Users/yourpath/randompopGarray.RDS")
+rand.Garray<-readRDS("randomdiagGarray.RDS")
 #The *10 has already been factored out
 ### Mean and median of Random G Array posterior samples
 rand.mean.penn<- apply(rand.Garray[,,1,], 1:2, mean)
@@ -256,18 +257,46 @@ rand.mean.mary<- apply(rand.Garray[,,2,], 1:2, mean)
 rand.mean.hoff<- apply(rand.Garray[,,3,], 1:2, mean)
 rand.mean.ellr<- apply(rand.Garray[,,4,], 1:2, mean)
 rmean.Gs<-list(rand.mean.penn, rand.mean.mary, rand.mean.hoff, rand.mean.ellr)
-#write.csv(rmean.Gs, file = "randMeanGtable.csv")  
+write.csv(rmean.Gs, file = "randMeanGtable.csv")  
 
 rand.median.penn<-matrix(apply(rand.Garray[,,1,], 1:2, median),nrow=5,ncol=5,byrow=F)
 rand.median.mary<-matrix(apply(rand.Garray[,,2,], 1:2, median),nrow=5,ncol=5,byrow=F)
 rand.median.hoff<-matrix(apply(rand.Garray[,,3,], 1:2, median),nrow=5,ncol=5,byrow=F)
 rand.median.ellr<-matrix(apply(rand.Garray[,,4,], 1:2, median),nrow=5,ncol=5,byrow=F)
 
+rand.Gmcmc.penn<- lapply(apply(rand.Garray[,,1,], 3, list), "[[", 1) 
+rand.Gmcmc.mary<- lapply(apply(rand.Garray[,,2,], 3, list), "[[", 1) 
+rand.Gmcmc.hoff<- lapply(apply(rand.Garray[,,3,], 3, list), "[[", 1) 
+rand.Gmcmc.ellr<- lapply(apply(rand.Garray[,,4,], 3, list), "[[", 1) 
+
+rpop.Gs <- list(rand.Gmcmc.penn, rand.Gmcmc.mary, rand.Gmcmc.hoff, rand.Gmcmc.ellr)
+rGarray.pop <- array( , c(n,n,m,ll))
+dimnames(rGarray.pop) <- list(traitnames,traitnames,Gnames, c(1:1000))
+for (i in 1:m) {
+  for (j in 1:ll) {
+    rGarray.pop[,,i,j] <- rpop.Gs[[i]][[j]]
+  }
+}
+randGmat_HPD<-function (randGmat) {
+  fhpd <- function (x) { x <- as.mcmc(x); HPDinterval(x, prob=0.95)}
+  hpd <- round(apply(randGmat,1:2, fhpd ),3)
+  int.res <- paste(hpd[1,,],hpd[2,,],sep=" , ")
+  mat.int <- matrix(int.res,nrow=5,ncol=5, byrow=F)
+  return(mat.int)
+}
+rGHPD.penn<-randGmat_HPD(rGarray.pop[,,1,])
+rGHPD.mary<-randGmat_HPD(rGarray.pop[,,2,])
+rGHPD.hoff<-randGmat_HPD(rGarray.pop[,,3,])
+rGHPD.ellr<-randGmat_HPD(rGarray.pop[,,4,])
+
+rGHPD.all<-list(rGHPD.penn,rGHPD.mary,rGHPD.hoff,rGHPD.ellr)
+write.csv(rGHPD.all, file = "randHPDAll.csv")
 
 
 #### Assign variables and constants ####
 
-clinemax<-as.vector(c(0.265198245, 0.506647609, -0.345393991, 0.627613055, -0.399728915))#SD clinemax
+#clinemax<-as.vector(c(0.265198245, 0.506647609, -0.345393991, 0.627613055, -0.399728915))#SD clinemax
+clinemaxsd<-as.vector(c(0.4298,-0.5351,-0.3528,0.2625,-0.7384))
 MCMCsamp<-length(Gmcmc.penn)
 m=4 #number of populations
 n=5 #number of traits
@@ -279,57 +308,23 @@ pop.Gs <- list(Gmcmc.penn, Gmcmc.mary, Gmcmc.hoff, Gmcmc.ellr)
 #Construct an array with posterior Gs
 Garray.pop <- array( , c(n,n,m,MCMCsamp))
 dimnames(Garray.pop) <- list(traitnames,traitnames,Gnames)
-for (k in 1:m) {
-  for (i in 1:MCMCsamp) {
-    Garray.pop[,,k,i] <- pop.Gs[[k]][[i]]
+for (i in 1:m) {
+  for (j in 1:MCMCsamp) {
+    Garray.pop[,,i,j] <- pop.Gs[[i]][[j]]
   }
 }
-
-
 
 #### G matrix dimensionality ####
-#### Effective N dim ####
-
-eff.dim.array<-array(,c(4,MCMCsamp))
-hpd.eff.dim<-array(,c(m,2))
-for (k in 1:m) {
-  for (i in 1:MCMCsamp){
-    eff.dim.array[k,i]<-eff.dim(Garray.pop[,,k,i])
-  }
-  hpd.eff.dim[k,]<-HPDinterval(as.mcmc(eff.dim.array[k,]))
-}
-
-
-reff.dim.array<-array(,c(4,1000))
-rhpd.eff.dim<-array(,c(m,2))
-for (k in 1:m) {
-  for (i in 1:1000){
-    reff.dim.array[k,i]<-eff.dim(rand.Garray[,,k,i])
-  }
-  rhpd.eff.dim[k,]<-HPDinterval(as.mcmc(reff.dim.array[k,]))
-}
-
-eff.dim.matrix<-array(,c(4,3))
-eff.dim.matrix[,1]<-apply(eff.dim.array, 1, mean)
+### mean gmaxes
+mean.g.list<-array(c(Gmcmc.mean.penn, Gmcmc.mean.mary, Gmcmc.mean.hoff, Gmcmc.mean.ellr), c(5,5,4))
+dimnames(mean.g.list)<-list(traitnames, traitnames, pop.list)
+eigenGs<-apply(mean.g.list, 3, FUN=eigen)
+mean.gmaxes<-array(,c(5,4))
+dimnames(mean.gmaxes)<-list(traitnames, pop.list)
 for (i in 1:m){
-  eff.dim.matrix[i,2]<-hpd.eff.dim[i,1]
-  eff.dim.matrix[i,3]<-hpd.eff.dim[i,2]
+  mean.gmaxes[,i]<-eigenGs[[i]][[2]][,1]
 }
-colnames(eff.dim.matrix)<-c("Pop","low","high")
-rownames(eff.dim.matrix)<-c("Penn", "Mary","Hoff","Ellr")
-View(eff.dim.matrix)
-#write.csv(eff.dim.matrix, file = "effdimensions.csv")
-
-reff.dim.matrix<-array(,c(4,3))
-reff.dim.matrix[,1]<-apply(reff.dim.array, 1, mean)
-for (i in 1:m){
-  reff.dim.matrix[i,2]<-rhpd.eff.dim[i,1]
-  reff.dim.matrix[i,3]<-rhpd.eff.dim[i,2]
-}
-colnames(reff.dim.matrix)<-c("Pop","low","high")
-rownames(reff.dim.matrix)<-c("rPenn", "rMary","rHoff","rEllr")
-View(reff.dim.matrix)
-#write.csv(reff.dim.matrix, file = "randeffdimensions.csv")
+write.csv(mean.gmaxes, file = "Mean.gmaxes.csv")
 ### Trace ####
 trace.array<-array(,c(4,MCMCsamp))
 hpd.trace<-array(,c(m,2))
@@ -349,7 +344,7 @@ for (i in 1:m){
 colnames(trace.matrix)<-c("Trace","low","high")
 rownames(trace.matrix)<-c("Penn", "Mary","Hoff","Ellr")
 View(trace.matrix)
-#write.csv(trace.matrix, file="Gmatrixtrace95.csv")
+write.csv(trace.matrix, file="Gmatrixtrace95.csv")
 
 rtrace.array<-array(,c(4,1000))
 rhpd.trace<-array(,c(m,2))
@@ -369,15 +364,35 @@ for (i in 1:m){
 colnames(rtrace.matrix)<-c("Trace","low","high")
 rownames(rtrace.matrix)<-c("Penn", "Mary","Hoff","Ellr")
 View(rtrace.matrix)
-#write.csv(rtrace.matrix, file="Gmatrixtracerand95.csv")
+write.csv(rtrace.matrix, file="Gmatrixtracerand95.csv")
 
+combs<-list(c(1,3), c(1,4), c(2,3), c(2,4))
+tracediff<-array(,c(4,MCMCsamp))
+for (i in 1:length(combs)){
+  cm<-combs[[i]]
+  tracediff[i,]<-trace.array[cm[1],]/trace.array[cm[2],]
+}
+dimnames(tracediff)<-list(c("Penn v. Hoff", "Penn v. Ellr", "Mary v. Hoff", "Mary v. Ellr"),NULL)
 
+#ROPE of +/- 0.10 --> within ROPE the traces are probably the same
+hpd.trdif<-array(,c(4,2))
+for (i in 1:length(combs)){
+  hpd.trdif[i,]<- HPDinterval(as.mcmc(tracediff[i,]))
+}
+rownames(hpd.trdif)<-list("Penn v. Hoff", "Penn v. Ellr", "Mary v. Hoff", "Mary v. Ellr")
+for (i in 1:length(combs)){
+  hist(tracediff[i,], col = "#2B6364", xlim = c(0,1.5), main=dimnames(tracediff)[[1]][i])
+  abline(v=0.9, lwd = 2, lty="dashed", col = "#C66234")
+  abline(v=1.1, lwd = 2, lty="dashed", col = "#C66234")
+  abline(v=c(hpd.trdif[i,1],hpd.trdif[i,2]), col = "#519ea0", lwd = 2)
+}  
+  
 ### Genetic variation in the direction of maximum clinal divergence  ####
 proj.array<-array(,c(m,MCMCsamp))
 hpd.proj<-array(,c(m,2))
 for (k in 1:m) {
   for (i in 1:MCMCsamp){
-    proj.array[k,i]<-proj(Garray.pop[,,k,i], clinemax)
+    proj.array[k,i]<-proj(Garray.pop[,,k,i], clinemaxsd)
   }
   hpd.proj[k,]<-HPDinterval(as.mcmc(proj.array[k,]))
 }
@@ -391,13 +406,13 @@ for (i in 1:m){
 colnames(proj.matrix)<-c("Proj","low","high")
 rownames(proj.matrix)<-c("Penn", "Mary","Hoff","Ellr")
 View(proj.matrix)
-write.csv(proj.matrix, file="Gmatrixproj95.csv")
+write.csv(proj.matrix, file="Gmatrixproj95diag.csv")
 #dividing by the amount of variation in Gmax standardizes the value
 projstd.array<-array(,c(m,MCMCsamp))
 hpdstd.proj<-array(,c(m,2))
 for (k in 1:m) {
   for (i in 1:MCMCsamp){
-    projstd.array[k,i]<-proj(Garray.pop[,,k,i], clinemax)/eigen(Garray.pop[,,k,i])$values[1]
+    projstd.array[k,i]<-proj(Garray.pop[,,k,i], clinemaxsd)/eigen(Garray.pop[,,k,i])$values[1]#change
   }
   hpdstd.proj[k,]<-HPDinterval(as.mcmc(projstd.array[k,]))
 }
@@ -411,8 +426,17 @@ for (i in 1:m){
 colnames(projstd.matrix)<-c("Proj(std)","low","high")
 rownames(projstd.matrix)<-c("Penn", "Mary","Hoff","Ellr")
 View(projstd.matrix)
-write.csv(projstd.matrix, file="Gmatrixproj95std.csv")
+write.csv(projstd.matrix, file="Gmatrixproj95stddiag.csv")
 
+p=1
+theta.array<-array(,c(m,MCMCsamp))
+hpd.theta<-array(,c(m,2))
+for (k in 1:m) {
+  for (i in 1:MCMCsamp){
+    theta.array[k,i]<-theta(eigen(Garray.pop[,,k,i])$vectors[,p], clinemaxsd)
+  }
+  hpd.theta[k,]<-HPDinterval(as.mcmc(theta.array[k,]))
+}
 
 #### Correlation between gmax and clinemax ####
 # random vectors
@@ -422,51 +446,69 @@ for (i in 1:vec){
   b <- runif(n,-1,1)
   rand.vec[,i] <- b/(sqrt(sum(b^2)))
 }
-p=1 #For gmax p=1, can change to get the other PC comparisons
-rMCMC.cline.corr <- array(, c(1, m, MCMCsamp))
-for (k in 1:m){
-  for(j in 1:MCMCsamp){
-    rMCMC.cline.corr[,k,j] <- vec.corr(eigen(Garray.pop[,,k,j])$vectors[,p], rand.vec[,j])
-  }}
+#For gmax p=1, can change to get the other PC comparisons
+rMCMC.cline.corr <- array(, c(n, m, MCMCsamp))
+rcline.hpd<-array(,c(n,2,m))
+for (p in 1:n){
+  for (k in 1:m){
+    for(j in 1:MCMCsamp){
+      rMCMC.cline.corr[p,k,j] <- vec.corr(eigen(Garray.pop[,,k,j])$vectors[,p], rand.vec[,j])
+    }
+    }
+}
 
-rcline.hpd<-array(,c(2,m))
-for (i in 1:m) {
-  rcline.hpd[,i]<-HPDinterval(as.mcmc(rMCMC.cline.corr[,i,]))
+for (i in 1:n){
+  for (j in 1:m){
+    rcline.hpd[i,,j]<-HPDinterval(as.mcmc(rMCMC.cline.corr[i,j,]))
+  }
 }
 rmean.cline.corr<-t(apply(rMCMC.cline.corr, 1:2, mean))
 
-MCMC.cline.corr <- array(, c(1, m, MCMCsamp))
-for (k in 1:m){
-  for(j in 1:MCMCsamp){
-    MCMC.cline.corr[,k,j] <- vec.corr(eigen(Garray.pop[,,k,j])$vectors[,p], clinemax)
-  }}
-cline.hpd<-array(,c(2,m))
-for (i in 1:m) {
-  cline.hpd[,i]<-HPDinterval(as.mcmc(MCMC.cline.corr[,i,]))
+MCMC.cline.corr <- array(, c(n, m, MCMCsamp))
+cline.hpd<-array(,c(n,2,m))
+for (p in 1:n){
+  for (k in 1:m){
+    for(j in 1:MCMCsamp){
+      MCMC.cline.corr[p,k,j] <- vec.corr(eigen(Garray.pop[,,k,j])$vectors[,p], clinemaxsd)
+    }
+  }
+}
+
+for (i in 1:n){
+  for (j in 1:m){
+    cline.hpd[i,,j]<-HPDinterval(as.mcmc(MCMC.cline.corr[i,j,]))
+  }
 }
 mean.cline.corr<-t(apply(MCMC.cline.corr, 1:2, mean))
 
 #Figure 1
-win.metafile("Figure_1.wmf")
-par(mao=c(1,1,1,1))
-plot((1:4)-0.1, rmean.cline.corr,type="p",xlab="",ylab="",pch=20,cex=1.5, lwd = 2, col="darkgrey",xaxt="n",frame.plot=F, ylim = c(-1,1.1), xlim = c(0.8, 4.2), font = 2)
-mtext(side=2, line = 3, font = 2, "Correlation")
-points((1:4)+0.1, mean.cline.corr,type="p",xlab="",pch=20,cex=1.5, col="#2B6364")
-axis(1,at=1:4,labels=Gnames, font = 2)
-arrows((1:4)+0.1,  mean.cline.corr,(1:4)+0.1,  cline.hpd[1,],length=0.1,angle=90,lwd = 2, col="#2B6364")
-arrows((1:4)-0.1, rmean.cline.corr,(1:4)-0.1, rcline.hpd[1,],length=0.1,angle=90,lwd = 2, col="darkgrey")
-arrows((1:4)+0.1,  mean.cline.corr,(1:4)+0.1,  cline.hpd[2,],length=0.1,angle=90,lwd = 2, col="#2B6364")
-arrows((1:4)-0.1, rmean.cline.corr,(1:4)-0.1, rcline.hpd[2,],length=0.1,angle=90,lwd = 2, col="darkgrey")
-legend(c(1,1.2), legend = c("Clinemax", "Random"), lty = 1, col = c("#2B6364", "darkgrey"), pch = 20, cex = 1.2, lwd = 2, bty = "n")
+#win.metafile("Figure_1.wmf")
+pdf("Figure_1.pdf")
+#par(mfrow=c(2,2),mar=c(4,4,4,4), oma = c(0,0.5,0,0))
+n=1
+for(p in 1:n){
+  plot(1:m-0.1, rmean.cline.corr[,p],type="p",xlab="",ylab="",pch=20,cex=1.5, lwd = 2, col="darkgrey",xaxt="n",frame.plot=F, ylim = c(-1,1.3), xlim = c(0.8, 4.2), font = 2)
+  mtext(side=2, line = 3, font = 2, "Correlation")
+  points(1:m+0.1, mean.cline.corr[,p],type="p",xlab="",pch=20,cex=1.5, col="#2B6364")
+  axis(1,at=1:4,labels=Gnames, font = 2)
+  #axis(2, at=c(-1,-0.5,0,0.5,1),font = 2)
+  arrows(1:m+0.1,  mean.cline.corr[,p],1:m+0.1,  cline.hpd[p,1,],length=0.1,angle=90,lwd = 2, col="#2B6364")
+  arrows(1:m-0.1, rmean.cline.corr[,p],1:m-0.1, rcline.hpd[p,1,],length=0.1,angle=90,lwd = 2, col="darkgrey")
+  arrows(1:m+0.1,  mean.cline.corr[,p],1:m+0.1,  cline.hpd[p,2,],length=0.1,angle=90,lwd = 2, col="#2B6364")
+  arrows(1:m-0.1, rmean.cline.corr[,p],1:m-0.1, rcline.hpd[p,2,],length=0.1,angle=90,lwd = 2, col="darkgrey")
+  mtext(paste("PC",p, sep = ""), side = 3, at = 1)
+  #if(p==3){legend(3.3,1.5, legend = c("Clinemax", "Random"), lty = 1, col = c("#2B6364", "darkgrey"), pch = 20, cex = 1, lwd = 2, bty = "n")}
+}
+legend(3,1.5, legend = c("Clinemax", "Random"), lty = 1, col = c("#2B6364", "darkgrey"), pch = 20, cex = 1.2, lwd = 2, bty = "n")
 dev.off()
+n=5
 ###Random Skewers ####
-set.seed(525)
-MCMCsamp=10000
+set.seed(555)
 MCMC.R.proj <- R.proj(Garray.pop, p = 0.95, vec = 1000)
 MCMC.R.proj$vec.score[1:n,(n+1):(n+((m^2 - m)/2))]
 table(rowSums(MCMC.R.proj$vec.score[,(n+1):(n+((m^2 - m)/2))]) > 0 )
 Rmat<-lapply(MCMC.R.proj$eig.R, round, digits = 3)
-#write.csv(Rmat, file = "Rmatrix.csv")
+write.csv(Rmat, file = "Rmatrix.csv")
 R.vec.proj <- array(, c(MCMCsamp, m, n))
 for (i in 1:n){
   R.vec.proj[,,i] <- t(apply(Garray.pop, 3:4, proj, b = MCMC.R.proj$eig.R$vectors[,i]))
@@ -482,17 +524,18 @@ rse1<-MCMC.R.proj[["eig.R"]]
 
 # Figure 2
 win.metafile("Figure_2.wmf")
-par(mfrow=c(2,3))
+
+par(mfrow=c(2,3), cex=1.2, lwd = 2, mar = c(2,4,2,1))
 n=5
 for (i in 1:n){
-  plot(1:m,colMeans(R.vec.proj[,,i]),ylab="Vg",xlab="",pch=16, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),xaxt="n",frame.plot=F,xlim=c(0,4),ylim=c(0,1.1))
+  plot(1:m,colMeans(R.vec.proj[,,i]),ylab="Vg",xlab="",pch=20, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),xaxt="n",frame.plot=F,xlim=c(0,4),ylim=c(0,1.5))
   axis(1,at=1:m,labels=Gnames)
-  arrows(1:m,colMeans(R.vec.proj[,,i]),1:m,HPD.R.vec.proj[,1,i],length=0.1,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
-  arrows(1:m,colMeans(R.vec.proj[,,i]),1:m,HPD.R.vec.proj[,2,i], length=0.1,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
+  arrows(1:m,colMeans(R.vec.proj[,,i]),1:m,HPD.R.vec.proj[,1,i],length=0.1,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"), lwd = 2)
+  arrows(1:m,colMeans(R.vec.proj[,,i]),1:m,HPD.R.vec.proj[,2,i], length=0.1,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"), lwd = 2)
   mtext(paste("RS",colnames(Rmat$vectors)[i],sep=""),side=3,at=0.3,font=1)
 }
 plot.new()
-legend("left", legend = Gnames, pch = 16, cex=1.5, lty = 1, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),bty = "n" )
+legend("left", legend = Gnames, cex = 1.2, pch = 16, lty = 1, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),bty = "n" )
 dev.off()
 
 ###Krzanowski's subspace analysis####
@@ -507,7 +550,7 @@ for (i in 1:m){
 n.vec <- rep(min(apply(ifelse(round(val,1) < 90, 1, 0), 2, sum)+1), m)
 MCMCsamp = 1000
 MCMCG.kr.rand90 <- kr.subspace(rand.Garray, vec = n.vec)
-MCMCsamp = 10000
+
 MCMCG.kr90 <- kr.subspace(Garray.pop, vec = n.vec)
 
 round(eigen(MCMCG.kr90$avH)$vectors, 2)
@@ -520,7 +563,6 @@ penn.H.theta90<-MCMCG.kr90$MCMC.H.theta[,1,]
 mary.H.theta90<-MCMCG.kr90$MCMC.H.theta[,2,]
 hoff.H.theta90<-MCMCG.kr90$MCMC.H.theta[,3,]
 ellr.H.theta90<-MCMCG.kr90$MCMC.H.theta[,4,]
-
 
 penn.H90<-array(,c(MCMCsamp,n))
 for (i in 1:5) {
@@ -542,113 +584,105 @@ for (i in 1:5) {
   int.ellr<-ellr.H.theta90[i,]
   ellr.H90[,i]<-int.ellr
 }
-
-
-HPD.H.penn90<-HPDinterval(as.mcmc(penn.H90), 0.95)[1:3,]
-HPD.H.mary90<-HPDinterval(as.mcmc(mary.H90), 0.95)[1:3,]
-HPD.H.hoff90<-HPDinterval(as.mcmc(hoff.H90), 0.95)[1:3,]
-HPD.H.ellr90<-HPDinterval(as.mcmc(ellr.H90), 0.95)[1:3,]
-
-
+n=4
+HPD.H.penn90<-HPDinterval(as.mcmc(penn.H90), 0.95)[1:n,]
+HPD.H.mary90<-HPDinterval(as.mcmc(mary.H90), 0.95)[1:n,]
+HPD.H.hoff90<-HPDinterval(as.mcmc(hoff.H90), 0.95)[1:n,]
+HPD.H.ellr90<-HPDinterval(as.mcmc(ellr.H90), 0.95)[1:n,]
 
 ###Figures for krza90####
 
-HPD.H.val <- cbind(HPDinterval(as.mcmc(MCMCG.kr90$MCMC.H.val))[1:3,], HPDinterval(as.mcmc(MCMCG.kr.rand90$MCMC.H.val))[1:3,])
+HPD.H.val <- cbind(HPDinterval(as.mcmc(MCMCG.kr90$MCMC.H.val))[1:n,], HPDinterval(as.mcmc(MCMCG.kr.rand90$MCMC.H.val))[1:n,])
 HPD.H.theta<- cbind(HPD.H.penn90,HPD.H.mary90,HPD.H.hoff90,HPD.H.ellr90)
 
-H.table<-cbind(colMeans(MCMCG.kr90$MCMC.H.val)[1:3],HPDinterval(as.mcmc(MCMCG.kr90$MCMC.H.val))[1:3,] )
+H.table<-cbind(colMeans(MCMCG.kr90$MCMC.H.val)[1:n],HPDinterval(as.mcmc(MCMCG.kr90$MCMC.H.val))[1:n,] )
 write.csv(H.table, file = "H_table.csv")
 
 #Figure 3
-n=3
-win.metafile("Figure_3.wmf")
-par(mfrow=c(1,1), dpi = 600)
-plot((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:3], col = c("#2B6364","#2B6364", "#2B6364"), type="p",xlab="",ylab="",pch=20,cex=1.5,xaxt="n", yaxt = "n",frame.plot=F,ylim=c(0,m+0.7),xlim=c(0.5,3.5))
+
+#win.metafile("Figure_3.wmf")
+pdf("Figure_3.pdf")
+par(mfrow=c(1,1))
+plot((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:n], col = c("#2B6364","#2B6364", "#2B6364"), type="p",xlab="",ylab="",pch=20,cex=1.5,xaxt="n", yaxt = "n",frame.plot=F,ylim=c(0,m+0.7),xlim=c(0.2,n+0.5))
 mtext(side= 2, line = 0,"Lambda", font = 2)
-axis(1, at=1:3,labels=c(paste("h",rep(1:n),sep="")), lwd = 2, font = 2)
+axis(1, at=1:n,labels=c(paste("h",rep(1:n),sep="")), lwd = 2, font = 2)
 axis(2, line = -4, at=0:4, labels=0:4, lwd = 2, font = 2)
-points((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:3],type="p",pch=20,cex=1.5, col = c("black","black","black"))
-arrows((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:3], col = c("#2B6364","#2B6364", "#2B6364"),(1:n)-0.1,HPD.H.val[,1],length=0.1,angle=90, lwd =2)
-arrows((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:3],col = c("#2B6364","#2B6364", "#2B6364"),(1:n)-0.1,HPD.H.val[,2],length=0.1,angle=90, lwd =2)
-arrows((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:3],col = c("black","black","black"),(1:n)+0.1,HPD.H.val[,3],length=0.1,angle=90,lwd =2)
-arrows((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:3],col = c("black","black","black"),(1:n)+0.1,HPD.H.val[,4],length=0.1,angle=90,lwd =2)
-legend(2.5, 5,legend=c("Observed","Randomised"),lty=c(1,1),cex = 1.2, bty="n", bg="white", col = c("#2B6364", "black"))
-legend(2.57, 5.14,legend=c("",""),pch=c(NA,20),cex = 1.5, bty="n", bg="white", col = c("#2B6364", "black"))
-legend(2.57, 5.07,legend=c("",""),pch=c(20,NA),cex = 1.5, bty="n", bg="white", col = c("#2B6364", "black"))
+points((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:n],type="p",pch=20,cex=1.5, col = c("black","black","black"))
+arrows((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:n], col = c("#2B6364","#2B6364", "#2B6364"),(1:n)-0.1,HPD.H.val[,1],length=0.1,angle=90, lwd =2)
+arrows((1:n)-0.1,colMeans(MCMCG.kr90$MCMC.H.val)[1:n],col = c("#2B6364","#2B6364", "#2B6364"),(1:n)-0.1,HPD.H.val[,2],length=0.1,angle=90, lwd =2)
+arrows((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:n],col = c("black","black","black"),(1:n)+0.1,HPD.H.val[,3],length=0.1,angle=90,lwd =2)
+arrows((1:n)+0.1,colMeans(MCMCG.kr.rand90$MCMC.H.val)[1:n],col = c("black","black","black"),(1:n)+0.1,HPD.H.val[,4],length=0.1,angle=90,lwd =2)
+legend(3.2, 1,legend=c("Observed","Randomised"),lty=c(1,1), cex = 1.3, pch = 20, bty="n", bg="white", col = c("#2B6364", "black"))
 dev.off()
 
 
 #Supplementary Figure 3
 mean.thetas<-apply(MCMCG.kr90$MCMC.H.theta, 1:2, mean)
-mean.thetas<-(mean.thetas)[1:3,]
+mean.thetas<-(mean.thetas)[1:n,]
 mean.thetas<-t(mean.thetas)
+par(cex = 2, mar = c(2,4,1,1))
+plot  ((1:n)-0.15,  mean.thetas[1,],type="p",xlab="",ylab="Theta",pch=16,cex=1, col="#311B36",xaxt="n", yaxp = c(0, 90, 3), frame.plot=F, ylim = c(0,100), xlim = c(0.8, 4.3), lwd = 2)
+points((1:n)-0.05, mean.thetas[2,],type="p",xlab="",,pch=16,cex=1, col=c("#7A6FAE"))
+points((1:n)+0.05, mean.thetas[3,],type="p",xlab="",pch=16,cex=1, col="#C66234" )
+points((1:n)+0.15,  mean.thetas[4,],type="p",xlab="",pch=16,cex=1, col="#8F4024"  )
+axis(1,at=1:n,labels=c(paste("h",rep(1:n),sep="")), lwd=2)
 
-plot  ((1:3)-0.15,  mean.thetas[1,],type="p",xlab="",ylab="Theta",pch=16,cex=1, col="#A9A9A9",xaxt="n", yaxp = c(0, 90, 3), frame.plot=F, ylim = c(0,100), xlim = c(0.8, 3.3))
-points((1:3)-0.05, mean.thetas[2,],type="p",xlab="",,pch=16,cex=1, col=c("#7FB069"))
-points((1:3)+0.05, mean.thetas[3,],type="p",xlab="",pch=16,cex=1, col="#834957" )
-points((1:3)+0.15,  mean.thetas[4,],type="p",xlab="",pch=16,cex=1, col="#FFC100"  )
-axis(1,at=1:3,labels=c(paste("h",rep(1:3),sep="")))
-
-arrows((1:3)-0.15,mean.thetas[1,],(1:3)-0.15, HPD.H.penn90[,1],length=0.05,angle=90, col="#A9A9A9")
-arrows((1:3)-0.05,mean.thetas[2,],(1:3)-0.05, HPD.H.mary90[,1],length=0.05,angle=90, col=c("#7FB069","#7FB069","#7FB069","white"))
-arrows((1:3)+0.05,mean.thetas[3,],(1:3)+0.05, HPD.H.hoff90[,1],length=0.05,angle=90, col="#834957")
-arrows((1:3)+0.15,mean.thetas[4,],(1:3)+0.15, HPD.H.ellr90[,1],length=0.05,angle=90, col="#FFC100")
-arrows((1:3)-0.15,mean.thetas[1,],(1:3)-0.15, HPD.H.penn90[,2],length=0.05,angle=90, col="#A9A9A9")
-arrows((1:3)-0.05,mean.thetas[2,],(1:3)-0.05, HPD.H.mary90[,2],length=0.05,angle=90, col=c("#7FB069","#7FB069","#7FB069","white"))
-arrows((1:3)+0.05,mean.thetas[3,],(1:3)+0.05, HPD.H.hoff90[,2],length=0.05,angle=90, col="#834957")
-arrows((1:3)+0.15,mean.thetas[4,],(1:3)+0.15, HPD.H.ellr90[,2],length=0.05,angle=90, col="#FFC100")
-legend(0.5, 90, xjust = -1, legend = c("Penn", "Mary", "Hoff", "Ellr"), col=c("#A9A9A9","#7FB069","#834957","#FFC100"), bty = "n", pch = 16, lty = 1)
+arrows((1:n)-0.15,mean.thetas[1,],(1:n)-0.15, HPD.H.penn90[,1],length=0.05,angle=90, col="#311B36", lwd = 2)
+arrows((1:n)-0.05,mean.thetas[2,],(1:n)-0.05, HPD.H.mary90[,1],length=0.05,angle=90, col="#7A6FAE", lwd = 2)
+arrows((1:n)+0.05,mean.thetas[3,],(1:n)+0.05, HPD.H.hoff90[,1],length=0.05,angle=90, col="#C66234", lwd = 2)
+arrows((1:n)+0.15,mean.thetas[4,],(1:n)+0.15, HPD.H.ellr90[,1],length=0.05,angle=90, col="#8F4024", lwd = 2)
+arrows((1:n)-0.15,mean.thetas[1,],(1:n)-0.15, HPD.H.penn90[,2],length=0.05,angle=90, col="#311B36", lwd = 2)
+arrows((1:n)-0.05,mean.thetas[2,],(1:n)-0.05, HPD.H.mary90[,2],length=0.05,angle=90, col="#7A6FAE", lwd = 2)
+arrows((1:n)+0.05,mean.thetas[3,],(1:n)+0.05, HPD.H.hoff90[,2],length=0.05,angle=90, col="#C66234", lwd = 2)
+arrows((1:n)+0.15,mean.thetas[4,],(1:n)+0.15, HPD.H.ellr90[,2],length=0.05,angle=90, col="#8F4024", lwd = 2)
+legend(0.5, 90, xjust = -1, legend = c("Penn", "Mary", "Hoff", "Ellr"), col=c("#311B36","#7A6FAE","#C66234","#8F4024"), bty = "n", pch = 16, lty = 1)
 
 
 ### Covariance Tensor ####
-MCMCsamp=10000
-MCMC.covtensor <- covtensor(Garray.pop)
+n=5
+MCMCsamp=1000
+MCMC.covtensor <- covtensor(Garray.popd)
 nnonzero <- min(n*(n+1)/2,m-1)
 
 #randomized
 MCMCsamp=1000
 MCMC.covtensor.rand <- covtensor(rand.Garray)
 
-
 ##HPD eval
-               
 HPD.eT.val <- cbind(HPDinterval(as.mcmc(MCMC.covtensor$MCMC.S.val[,1:nnonzero]), prob=0.95), HPDinterval(as.mcmc(MCMC.covtensor.rand$MCMC.S.val[,1:nnonzero]), prob=0.95))
 Eigentensor<-round(cbind(unique(MCMC.covtensor$tensor.summary[1:(n*nnonzero),1]), HPD.eT.val[,1:2], unique(MCMC.covtensor.rand$tensor.summary[1:(n*nnonzero),1]),HPD.eT.val[,3:4]), 5)
 write.csv(Eigentensor, file = "Eigentensors.csv")
 
 tens.summary<-(round(MCMC.covtensor$tensor.summary[1:(n*3),2:dim(MCMC.covtensor$tensor.summary)[2]], 4))
 write.csv(tens.summary, file = "covtensor_summary.csv")
-e11 <- c(as.numeric(MCMC.covtensor$tensor.summary[1,3:dim(MCMC.covtensor$tensor.summary)[2]]))
 #e11 vector
+e11 <- c(as.numeric(MCMC.covtensor$tensor.summary[1,3:dim(MCMC.covtensor$tensor.summary)[2]]))
+#e21 vector
 e21 <- c(as.numeric(MCMC.covtensor$tensor.summary[(n+1),3:dim(MCMC.covtensor$tensor.summary)[2]]))
-#e21 vector
-e12 <- c(as.numeric(MCMC.covtensor$tensor.summary[2,3:dim(MCMC.covtensor$tensor.summary)[2]]))
 #e12 vector
+e12 <- c(as.numeric(MCMC.covtensor$tensor.summary[2,3:dim(MCMC.covtensor$tensor.summary)[2]]))
+#e22 vector
 e22 <- c(as.numeric(MCMC.covtensor$tensor.summary[(n+2),3:dim(MCMC.covtensor$tensor.summary)[2]]))
-#e21 vector
 
-r.e11 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[1,3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
 #e11 vector rand
-r.e21 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[(n+1),3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
+r.e11 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[1,3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
 #e21 vector rand
-r.e31 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[((n*2)+1),3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
+r.e21 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[(n+1),3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
 #e31 vector rand
+r.e31 <- c(as.numeric(MCMC.covtensor.rand$tensor.summary[((n*2)+1),3:dim(MCMC.covtensor.rand$tensor.summary)[2]]))
 
-
-
+#genetic variance along e1, 1 for each MCMC sample of each replicate line
 e11.proj <- apply(Garray.pop, 3:4, proj, b = e11)
+HPD.e11 <- HPDinterval(t(as.mcmc(e11.proj)),prob = 0.95)
 e12.proj <- apply(Garray.pop, 3:4, proj, b = e12)
+HPD.e12 <- HPDinterval(t(as.mcmc(e12.proj)),prob = 0.95)
 #genetic variance along e1, 1 for each MCMC sample of each replicate line
 e21.proj <- apply(Garray.pop, 3:4, proj, b = e21)
-e22.proj <- apply(Garray.pop, 3:4, proj, b = e22)
-#genetic variance along e1, 1 for each MCMC sample of each replicate line
-
-HPD.e11 <- HPDinterval(t(as.mcmc(e11.proj)),prob = 0.95)
 HPD.e21 <- HPDinterval(t(as.mcmc(e21.proj)),prob = 0.95)
-
-HPD.e12 <- HPDinterval(t(as.mcmc(e12.proj)),prob = 0.95)
+e22.proj <- apply(Garray.pop, 3:4, proj, b = e22)
 HPD.e22 <- HPDinterval(t(as.mcmc(e22.proj)),prob = 0.95)
 
+#Mean variances along e1 and e2
 av.e11.proj<- apply(e11.proj, 1, mean)
 av.e21.proj<- apply(e21.proj, 1, mean)
 
@@ -657,7 +691,6 @@ av.e22.proj<- apply(e22.proj, 1, mean)
 
 #Correlation between e11 and the first eigenvector from Random Skewers
 round(vec.corr(e11, rse1$vectors[,1]),3)
-
 
 ###figures for tensor####
 HPD.tensor.coord <- array(,c(m,2,nnonzero))
@@ -671,13 +704,13 @@ for (i in 1:m){
 
 n=4
 #Figure 4
-svg("Figure_4.svg")
+tiff("Figure_4.tiff")
 layout.matrix <- matrix(c(0,1,1,1,0, 2,0, 3), nrow = 4, ncol = 2)
 layout(mat = layout.matrix,
        heights = c(0.2, 1, 0.2, 1), # Heights of the two rows
        widths = c(2, 2)) # Widths of the two columns
 layout.show(3)
-par(mar = c(3,3,0,0))
+par(mar = c(3,3,0,0), mai = c(0.5,1,0.5,0))
 plot((1:nnonzero)-0.1,unique(MCMC.covtensor$tensor.summary[1:(n*nnonzero),1]),  xlab="",ylab="Alpha",pch=16,xaxt="n",  frame.plot=F, xlim=c(0.8,3.5),ylim=c(0,0.25),col = ("#2B6364"))
 axis(1,at=1:nnonzero,labels=c(paste("E",rep(1:nnonzero),sep="")))
 points((1:nnonzero)+0.1, unique(MCMC.covtensor.rand$tensor.summary[1:(n*nnonzero),1]),pch=16,cex=1)
@@ -685,43 +718,43 @@ arrows((1:nnonzero)-0.1, col = ("#2B6364"),  unique(MCMC.covtensor$tensor.summar
 arrows((1:nnonzero)-0.1, col = ("#2B6364"), unique(MCMC.covtensor$tensor.summary[1:(n*nnonzero),1]),(1:nnonzero)-0.1,HPD.eT.val[,2],length=0.08,angle=90)
 arrows((1:nnonzero)+0.1, unique(MCMC.covtensor.rand$tensor.summary[1:(n*nnonzero),1]),(1:nnonzero)+0.1,HPD.eT.val[,3],length=0.08,angle=90,lty=5)
 arrows((1:nnonzero)+0.1, unique(MCMC.covtensor.rand$tensor.summary[1:(n*nnonzero),1]),(1:nnonzero)+0.1,HPD.eT.val[,4],length=0.08,angle=90,lty=5)
-legend(2.5, 0.23, cex = 1.2, legend=c("Observed","Randomised"),lty=c(1,5),pch=c(16,16),bty="n", col = c("#2B6364", "black"))
+legend(2, 0.23, cex = 1.2, legend=c("Observed","Randomised"),lty=c(1,5),pch=c(16,16),bty="n", col = c("#2B6364", "black"))
 mtext(LETTERS[1], side =3, line = 0, at = 1, font = 2)
-
+par(mar = c(3,3,0,0), mai = c(0.5,0.5,0.2,0.2))
 for (k in 1:2){  
-  plot(1:m,MCMC.covtensor$av.G.coord[,k,],col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100") , ylab="",xlab="",pch=16,xaxt="n",frame.plot=F,xlim=c(0.9,4.5),ylim=c(floor(min(HPD.tensor.coord[,,k])),ceiling(max(HPD.tensor.coord[,,k]))),main = "")
+  plot(1:m,MCMC.covtensor$av.G.coord[,k,],col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024") , ylab="Vg",xlab="",pch=16,xaxt="n",frame.plot=F,xlim=c(0.9,4.5),ylim=c(floor(min(HPD.tensor.coord[,,k])),ceiling(max(HPD.tensor.coord[,,k]))),main = "")
   axis(1,at=1:m,labels=Gnames)
-  arrows(1:m,MCMC.covtensor$av.G.coord[,k,],1:m,HPD.tensor.coord[,1,k],length=0.1,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100") )
-  arrows(1:m,MCMC.covtensor$av.G.coord[,k,],1:m,HPD.tensor.coord[,2,k],length=0.1,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100") )
+  arrows(1:m,MCMC.covtensor$av.G.coord[,k,],1:m,HPD.tensor.coord[,1,k],length=0.1,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024") )
+  arrows(1:m,MCMC.covtensor$av.G.coord[,k,],1:m,HPD.tensor.coord[,2,k],length=0.1,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024") )
   mtext(dimnames(MCMC.covtensor$av.G.coord)[[2]][k],side=3, line = 0,at=3.4,font=1)
   mtext(LETTERS[k+1], side = 3, line = 0, at = 1, font = 2)
 }
 dev.off()
 ##Figure 5
-win.metafile("Figure_5.wmf")
-
+#win.metafile("Figure_5.wmf")
+pdf("Figure_5.pdf")
 par(mfrow=c(2,2))
-plot(1:m,rowMeans(e11.proj),ylab="Vg",xlab="",pch=16, cex = 1, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e11))))
+plot(1:m,rowMeans(e11.proj),ylab="Vg",xlab="",pch=16, cex = 1, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e11))))
 axis(1,at=1:m,labels=Gnames)
-arrows(1:m,rowMeans(e11.proj),1:m,HPD.e11[,1],length=0.05,angle=90,col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
-arrows(1:m,rowMeans(e11.proj),1:m,HPD.e11[,2],length=0.05,angle=90,col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
+arrows(1:m,rowMeans(e11.proj),1:m,HPD.e11[,1],length=0.05,angle=90,col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"))
+arrows(1:m,rowMeans(e11.proj),1:m,HPD.e11[,2],length=0.05,angle=90,col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"))
 mtext("e11",side=3,at=1.1,font=2)
-plot(1:m,rowMeans(e12.proj),ylab="Vg",xlab="",pch=16, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e12))))
+plot(1:m,rowMeans(e12.proj),ylab="Vg",xlab="",pch=16, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e12))))
 axis(1,at=1:m,labels=Gnames)
-arrows(1:m,rowMeans(e12.proj),1:m,HPD.e12[,1],length=0.05,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
-arrows(1:m,rowMeans(e12.proj),1:m,HPD.e12[,2],length=0.05,angle=90, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"))
+arrows(1:m,rowMeans(e12.proj),1:m,HPD.e12[,1],length=0.05,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"))
+arrows(1:m,rowMeans(e12.proj),1:m,HPD.e12[,2],length=0.05,angle=90, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"))
 mtext("e12",side=3,at=1.1,font=2)
-#legend("topright", legend = Gnames, pch = 16, lty = 1, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),bty = "n" )
+legend("topright", legend = Gnames, pch = 16, lty = 1, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),bty = "n" )
 
-plot(1:m,rowMeans(e21.proj),ylab="Vg",xlab="",pch=16,cex = 1,col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e21))))
+plot(1:m,rowMeans(e21.proj),ylab="Vg",xlab="",pch=16,cex = 1,col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e21))))
 axis(1,at=1:m,labels=Gnames)
-arrows(1:m,rowMeans(e21.proj),1:m,HPD.e21[,1],length=0.05, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),angle=90)
-arrows(1:m,rowMeans(e21.proj),1:m,HPD.e21[,2],length=0.05, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),angle=90)
+arrows(1:m,rowMeans(e21.proj),1:m,HPD.e21[,1],length=0.05, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),angle=90)
+arrows(1:m,rowMeans(e21.proj),1:m,HPD.e21[,2],length=0.05, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),angle=90)
 mtext("e21",side=3,at=1.1,font=2)
-plot(1:m,rowMeans(e22.proj),ylab="Vg",xlab="",pch=16,cex = 1,col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e22))))
+plot(1:m,rowMeans(e22.proj),ylab="Vg",xlab="",pch=16,cex = 1,col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),xaxt="n",frame.plot=F,xlim=c(0.75,4),ylim=c(0,ceiling(max(HPD.e22))))
 axis(1,at=1:m,labels=Gnames)
-arrows(1:m,rowMeans(e22.proj),1:m,HPD.e22[,1],length=0.05, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),angle=90)
-arrows(1:m,rowMeans(e22.proj),1:m,HPD.e22[,2],length=0.05, col=c("#A9A9A9", "#7FB069", "#834957", "#FFC100"),angle=90)
+arrows(1:m,rowMeans(e22.proj),1:m,HPD.e22[,1],length=0.05, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),angle=90)
+arrows(1:m,rowMeans(e22.proj),1:m,HPD.e22[,2],length=0.05, col=c("#311B36", "#7A6FAE", "#C66234", "#8F4024"),angle=90)
 mtext("e22",side=3,at=1.1,font=2)
 dev.off()
 
