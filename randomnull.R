@@ -60,8 +60,9 @@ nitt<-20000
 burnin<-5000
 thin<-100
 
+L = 1000
 #### Loop to run randomized within pop G models ####
-for (i in 1:1000){
+for (i in 1:L){
   
 #shuffle individuals across dams
   i.multi.penn$randDam <- sample(i.multi.penn$Dam, length(i.multi.penn$Dam), replace = F)
@@ -78,3 +79,54 @@ for (i in 1:1000){
                        us(at.level(Pop, "HOFF"):trait):units +us(at.level(Pop, "ELLR"):trait):units, nitt=nitt, prior=priorse, verbose=T, thin=thin, burnin=burnin) 
   saveRDS(mcmcdiag, file = paste("MCMCoutput/Diag",i,"poprand.RDS",sep="_"))
 }  
+
+#make sure directory is same as where the null output from above is stored.
+dir()
+
+#list all RDS files from the current directory
+#alter regex pattern if necessary
+list.filenames<-list.files(pattern="poprand.RDS$")
+list.filenames
+
+#empty list as destination for matrices
+list.data<-list()
+
+#just need the VCV matrix
+list.data[[1]]<-readRDS(list.filenames[1])$VCV
+
+# create a loop to read in the data
+for (i in 1:length(list.filenames)){
+  list.data[[i]]<-readRDS(list.filenames[i])$VCV
+}
+
+# add the names of your data to the list
+names(list.data)<-list.filenames
+
+#change m and n depending on how many populations and traits
+m=4
+n=5
+
+rand.VCV<-list()
+rand.VCV[[1]]<-list.data[1:L]
+rand.VCV[[2]]<-list.data[(L+1):(L*2)]
+rand.VCV[[3]]<-list.data[(L*2+1):(L*3)]
+rand.VCV[[4]]<-list.data[(L*3+1):(L*4)]
+
+#assign population names
+names(rand.VCV)<-c("Ellr", "Hoff", "Mary", "Penn")  
+
+#This file is large 
+#saveRDS(rand.VCV, file = "randompopVCV.RDS")
+
+#just G matrix for the 150th saved iteration of each of the randomizations
+
+rand.Garray<-array(,c(n,n,m,L)) #this was alphabetical, usual order is the opposite so this is fixed here
+for(i in 1:L){
+  j<-150
+  rand.Garray[,,4,i]<-matrix(rand.VCV[[1]][[i]][j,1:25],nrow=5,ncol=5)/100
+  rand.Garray[,,3,i]<-matrix(rand.VCV[[2]][[i]][j,1:25],nrow=5,ncol=5)/100
+  rand.Garray[,,2,i]<-matrix(rand.VCV[[3]][[i]][j,1:25],nrow=5,ncol=5)/100
+  rand.Garray[,,1,i]<-matrix(rand.VCV[[4]][[i]][j,1:25],nrow=5,ncol=5)/100
+}
+
+saveRDS(rand.Garray, file = "randompopGarray.RDS")
